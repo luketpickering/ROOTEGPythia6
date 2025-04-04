@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(ROOTTPythia6 VERSION 1.0.0 LANGUAGES CXX C)
+project(ROOTEGPythia6 VERSION 1.0.0 LANGUAGES CXX C)
 
-option(ROOTTPythia6_Pythia6_BUILTIN "Whether to build Pythia6" ON)
+option(ROOTEGPythia6_Pythia6_BUILTIN "Whether to build Pythia6" ON)
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
@@ -23,7 +23,7 @@ LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules)
 
 find_package(ROOT 6 REQUIRED)
 
-if(ROOTTPythia6_Pythia6_BUILTIN)
+if(ROOTEGPythia6_Pythia6_BUILTIN)
   enable_language(Fortran)
 
   if(NOT EXISTS pythia6428.f OR NOT EXISTS pythia6/tpythia6_called_from_cc.F)
@@ -46,7 +46,7 @@ if(ROOTTPythia6_Pythia6_BUILTIN)
   add_library(Pythia6::Pythia6 ALIAS Pythia6)
 
   install(TARGETS Pythia6
-      EXPORT ROOTTPythia6-targets
+      EXPORT ROOTEGPythia6-targets
       LIBRARY DESTINATION lib 
       ARCHIVE DESTINATION lib)
 else()
@@ -60,22 +60,24 @@ ROOT_GENERATE_DICTIONARY(TPythia6
               LINKDEF ${CMAKE_CURRENT_LIST_DIR}/inc/LinkDef.h
               OPTIONS -p)
 
-add_library(ROOTTPythia6 SHARED 
+add_library(EGPythia6 SHARED 
               TPythia6.cxx
               ${CMAKE_CURRENT_LIST_DIR}/src/TMCParticle.cxx
               ${CMAKE_CURRENT_LIST_DIR}/src/TPythia6.cxx
               ${CMAKE_CURRENT_LIST_DIR}/src/TPythia6Decayer.cxx)
 
-target_link_libraries(ROOTTPythia6 PUBLIC ROOT::Core Pythia6::Pythia6)
-target_include_directories(ROOTTPythia6 PUBLIC 
+add_library(ROOT::EGPythia6 ALIAS EGPythia6)
+
+target_link_libraries(EGPythia6 PUBLIC ROOT::Core Pythia6::Pythia6)
+target_include_directories(EGPythia6 PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
   $<INSTALL_INTERFACE:include>)
 
-set_target_properties(ROOTTPythia6 PROPERTIES 
-  PUBLIC_HEADER "inc/TMCParticle.h;inc/TPythia6.h;inc/TPythia6Decayer.h")
+set_target_properties(EGPythia6 PROPERTIES 
+  PUBLIC_HEADER "inc/TMCParticle.h;inc/TPythia6.h;inc/TPythia6Decayer.h;inc/TPythia6Calls.h")
 
-install(TARGETS ROOTTPythia6
-      EXPORT ROOTTPythia6-targets
+install(TARGETS EGPythia6
+      EXPORT ROOTEGPythia6-targets
       LIBRARY DESTINATION lib 
       ARCHIVE DESTINATION lib 
       PUBLIC_HEADER DESTINATION include)
@@ -85,26 +87,32 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/libTPythia6_rdict.pcm 
   DESTINATION lib)
 
-install(EXPORT ROOTTPythia6-targets
-  FILE ROOTTPythia6Targets.cmake
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/ROOTTPythia6
+install(EXPORT ROOTEGPythia6-targets
+  FILE ROOTEGPythia6Targets.cmake
+  NAMESPACE ROOT::
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/ROOTEGPythia6
 )
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/ROOTTPythia6Config.cmake.in 
-  ${CMAKE_BINARY_DIR}/ROOTTPythia6Config.cmake
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/ROOTEGPythia6Config.cmake.in 
+  ${CMAKE_BINARY_DIR}/ROOTEGPythia6Config.cmake
   INSTALL_DESTINATION 
     /this/is/ignored/for/some/reason/thanks/kitware
   NO_SET_AND_CHECK_MACRO
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 write_basic_package_version_file(
-  ${CMAKE_BINARY_DIR}/ROOTTPythia6ConfigVersion.cmake
-  VERSION ${ROOTTPythia6_VERSION}
+  ${CMAKE_BINARY_DIR}/ROOTEGPythia6ConfigVersion.cmake
+  VERSION ${ROOTEGPythia6_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
 install(FILES 
-    ${CMAKE_BINARY_DIR}/ROOTTPythia6Config.cmake 
-    ${CMAKE_BINARY_DIR}/ROOTTPythia6ConfigVersion.cmake 
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/ROOTTPythia6)
+    ${CMAKE_BINARY_DIR}/ROOTEGPythia6Config.cmake 
+    ${CMAKE_BINARY_DIR}/ROOTEGPythia6ConfigVersion.cmake 
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/ROOTEGPythia6)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/ROOTEGPythia6-config.in
+  "${PROJECT_BINARY_DIR}/ROOTEGPythia6-config" @ONLY)
+install(PROGRAMS
+  "${PROJECT_BINARY_DIR}/ROOTEGPythia6-config" DESTINATION bin)

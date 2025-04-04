@@ -1,0 +1,40 @@
+#!/bin/bash
+
+function egpythia6help {
+  echo -e "[RUNLIKE]: ${0} [options]"
+  echo -e "Where options can be:"
+  echo -e "\t--cxxflags   "
+  echo -e "\t--ldflags    "
+}
+
+if [ ${#} -eq 0 ] || [ "${1}" == "help" ]; then
+  egpythia6help
+  exit 0
+fi
+
+ROOTEGPythia6_ROOT=@CMAKE_INSTALL_PREFIX@
+
+while [[ ${#} -gt 0 ]]; do
+
+  KEYARG=${1}
+
+  case $KEYARG in
+
+    --help|-h|-?)
+      egpythia6help
+      exit 0
+    ;;
+
+    --cxxflags)
+      echo "-I${ROOTEGPythia6_ROOT}/include"
+    ;;
+
+    --ldflags)
+      echo "-L${ROOTEGPythia6_ROOT}/lib -Wl,-rpath,${ROOTEGPythia6_ROOT}/lib -lEGPythia6 -lPythia6"
+    ;;
+
+
+  esac
+
+  shift
+done
