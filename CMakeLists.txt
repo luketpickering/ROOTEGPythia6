@@ -26,17 +26,8 @@ find_package(ROOT 6 REQUIRED)
 if(ROOTEGPythia6_Pythia6_BUILTIN)
   enable_language(Fortran)
 
-  if(NOT EXISTS pythia6428.f OR NOT EXISTS pythia6/tpythia6_called_from_cc.F)
-    execute_process(COMMAND wget http://root.cern.ch/download/pythia6.tar.gz)
-    execute_process(COMMAND wget https://pythia.org/download/pythia6/pythia6428.f)
-    execute_process(COMMAND tar xfvz pythia6.tar.gz)
-
-    execute_process(COMMAND sed -i "s/int /extern int /g" pythia6/pythia6_common_address.c)
-    execute_process(COMMAND sed -i "s/char /extern char /g" pythia6/pythia6_common_address.c)
-    execute_process(COMMAND sed -i "s/extern int pyuppr/int pyuppr/g" pythia6/pythia6_common_address.c)
-  endif()
-
-  add_library(Pythia6 SHARED pythia6428.f
+  add_library(Pythia6 SHARED 
+    pythia6/pythia6428.f
     pythia6/pythia6_common_address.c
     pythia6/tpythia6_called_from_cc.F)
 
@@ -68,7 +59,7 @@ add_library(EGPythia6 SHARED
 
 add_library(ROOT::EGPythia6 ALIAS EGPythia6)
 
-target_link_libraries(EGPythia6 PUBLIC ROOT::Core Pythia6::Pythia6)
+target_link_libraries(EGPythia6 PUBLIC ROOT::EG Pythia6::Pythia6)
 target_include_directories(EGPythia6 PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/inc>
   $<INSTALL_INTERFACE:include>)
