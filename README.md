@@ -17,8 +17,14 @@ make install #installs to ROOTEGPythia6/build/Linux/ by default
 
 First add the build location to the CMake prefix path
 
+- For Linux users
 ```bash
 export ROOTEGPythia6_ROOT=/path/to/ROOTEGPythia6/build/Linux
+```
+
+- For MacOS users
+```zsh
+export ROOTEGPythia6_ROOT=/path/to/ROOTEGPythia6/build/Darwin
 ```
 
 ### CMake
